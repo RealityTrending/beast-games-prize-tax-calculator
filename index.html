@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beast Games Prize &amp; Tax Calculator</title>
+<style>
+  :root { --navy:#101c2c; --crimson:#b40e28; --ink:#17191f; --soft:#f4f5f7; --line:#e3e6ea; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family: Georgia, 'Times New Roman', serif; background:var(--soft); color:var(--ink); }
+  header { background:var(--navy); color:#e9edf3; padding:28px 20px; text-align:center; }
+  header h1 { margin:0 0 6px; font-size:28px; }
+  header p { margin:0; opacity:.85; font-size:15px; }
+  main { max-width:640px; margin:24px auto 48px; background:#fff; border:1px solid var(--line); border-radius:10px; padding:24px; }
+  label { display:block; font-weight:bold; margin:16px 0 6px; font-size:15px; }
+  input, select { width:100%; padding:10px; font-size:16px; border:1px solid var(--line); border-radius:6px; }
+  button { margin-top:20px; width:100%; padding:12px; font-size:17px; font-weight:bold; color:#fff; background:var(--crimson); border:0; border-radius:6px; cursor:pointer; }
+  button:hover { background:#8c0a1f; }
+  .results { margin-top:24px; border-top:2px solid var(--line); padding-top:16px; display:none; }
+  .results table { width:100%; border-collapse:collapse; font-size:16px; }
+  .results td { padding:8px 4px; border-bottom:1px solid var(--line); }
+  .results td:last-child { text-align:right; font-variant-numeric:tabular-nums; }
+  .takehome { font-size:20px; font-weight:bold; }
+  .takehome td { border-bottom:0; }
+  .note { font-size:13px; color:#4c525e; margin-top:16px; line-height:1.5; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Beast Games Prize &amp; Tax Calculator</h1>
+  <p>Win $5,000,000 on the show. Keep how much, exactly?</p>
+</header>
+<main>
+  <label for="prize">Prize amount (USD)</label>
+  <input id="prize" type="number" value="5000000" min="0" step="1000">
+
+  <label for="deductions">In-show deductions accepted (bribes etc., USD)</label>
+  <input id="deductions" type="number" value="0" min="0" step="1000">
+
+  <label for="state">Winner's home state</label>
+  <select id="state">
+    <option value="0">Nevada (no state income tax)</option>
+    <option value="0">Texas (no state income tax)</option>
+    <option value="0">Florida (no state income tax)</option>
+    <option value="0">Washington (no state income tax)</option>
+    <option value="13.3">California (13.3%)</option>
+    <option value="10.9">New York (10.9%)</option>
+    <option value="10.75">New Jersey (10.75%)</option>
+    <option value="8.53">Minnesota (8.53%)</option>
+    <option value="5.39">Georgia (5.39%)</option>
+    <option value="4.95">Illinois (4.95%)</option>
+    <option value="4.4">Colorado (4.4%)</option>
+    <option value="custom">Other (enter rate below)</option>
+  </select>
+
+  <label for="customRate">Custom state rate (%)</label>
+  <input id="customRate" type="number" value="0" min="0" max="20" step="0.1">
+
+  <button id="calc" type="button">Calculate take-home</button>
+
+  <div class="results" id="results">
+    <table>
+      <tr><td>Prize after deductions</td><td id="rGross"></td></tr>
+      <tr><td>Estimated federal tax (37% top rate)</td><td id="rFed"></td></tr>
+      <tr><td>Estimated state tax</td><td id="rState"></td></tr>
+      <tr class="takehome"><td>You actually keep</td><td id="rNet"></td></tr>
+    </table>
+    <p class="note">Estimate only, not tax advice. Federal tax uses the simplified 37% top-rate model,
+    the same model as the live calculator on Reality Trending. Studios usually withhold 24% up front,
+    so the rest of the bill comes due at filing time. Real outcomes depend on filing status, deductions
+    and residency.</p>
+  </div>
+</main>
+<script>
+  const fmt = n => n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+  document.getElementById('calc').addEventListener('click', () => {
+    const prize = Math.max(0, parseFloat(document.getElementById('prize').value) || 0);
+    const ded = Math.max(0, parseFloat(document.getElementById('deductions').value) || 0);
+    const gross = Math.max(0, prize - ded);
+    let rate = parseFloat(document.getElementById('state').value);
+    if (isNaN(rate)) rate = Math.max(0, parseFloat(document.getElementById('customRate').value) || 0);
+    const fed = gross * 0.37;
+    const stateTax = gross * rate / 100;
+    const net = gross - fed - stateTax;
+    document.getElementById('rGross').textContent = fmt(gross);
+    document.getElementById('rFed').textContent = fmt(fed);
+    document.getElementById('rState').textContent = fmt(stateTax);
+    document.getElementById('rNet').textContent = fmt(net);
+    document.getElementById('results').style.display = 'block';
+  });
+</script>
+</body>
+</html>
